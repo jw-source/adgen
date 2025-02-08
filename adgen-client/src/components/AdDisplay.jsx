@@ -1,35 +1,65 @@
-import React, { useEffect, useRef } from "react"
+import React, { useEffect, useState } from "react";
+import WebSocketClient from "./WebSocketClient";
 
-const AdDisplay = ({ faceData }) => {
-  const canvasRef = useRef(null)
+const AdDisplay = () => {
+  const [adImage, setAdImage] = useState(null); // State to store ad image URL
+
+  const fetchGeneratedAd = () => {
+    fetch("http://localhost:5000/api/get-generated-ad")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch generated ad");
+        }
+        return response.blob(); // Convert response to a Blob
+      })
+      .then((blob) => {
+        // Create a URL for the Blob and set it as the ad image
+        const imageUrl = URL.createObjectURL(blob);
+        setAdImage(imageUrl);
+      })
+      .catch((error) => console.error("Error fetching generated ad:", error));
+  };
 
   useEffect(() => {
-    const canvas = canvasRef.current
-    const ctx = canvas.getContext("2d")
+    // Fetch the currently selected ad image from the backend
+    fetch("http://localhost:5000/api/get-ad-image")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch ad image");
+        }
+        return response.blob(); // Convert response to a Blob
+      })
+      .then((blob) => {
+        // Create a URL for the Blob and set it as the ad image
+        const imageUrl = URL.createObjectURL(blob);
+        setAdImage(imageUrl);
+      })
+      .catch((error) => console.error("Error fetching ad image:", error));
+  }, []);
 
-    const img = new Image()
-    img.src = "/lebron.png" // Correct path for the image in the public folder
+  return (
+    <div style={containerStyle}>
+      <WebSocketClient fetchGeneratedAd={fetchGeneratedAd} />
+      {adImage ? (
+        <img src={adImage} alt="Ad" style={imageStyle} />
+      ) : (
+        <p>Loading ad...</p>
+      )}
+    </div>
+  );
+};
 
-    img.onload = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+/* 🔹 Styling */
+const containerStyle = {
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  height: "100vh",
+};
 
-      if (faceData) {
-        ctx.font = "24px Arial"
-        ctx.fillStyle = "red"
-        ctx.fillText(`Age: ${faceData.age}`, 20, 40)
-        ctx.fillText(`Gender: ${faceData.gender}`, 20, 70)
-        ctx.fillText(`Emotion: ${faceData.emotion}`, 20, 100)
-        ctx.fillText(`Race: ${faceData.race}`, 20, 130)
-      }
-    }
+const imageStyle = {
+  maxWidth: "100%",
+  maxHeight: "100%",
+};
 
-    img.onerror = () => {
-      console.error("Failed to load the image")
-    }
-  }, [faceData])
-
-  return <canvas ref={canvasRef} width={800} height={600} style={{ border: "1px solid black" }} />
-}
-
-export default AdDisplay
+export default AdDisplay;

@@ -1,24 +1,51 @@
-import React, { useEffect } from "react"
+import React, { useEffect, useRef } from "react";
 
-const WebSocketClient = ({ setFaceData }) => {
+const WebSocketClient = ({ setFaceData, fetchGeneratedAd }) => {
+  const ws = useRef(null);
+
   useEffect(() => {
-    const ws = new WebSocket("ws://localhost:8765") // WebSocket server URL
+    const connectWebSocket = () => {
+      if (!ws.current || ws.current.readyState === WebSocket.CLOSED) {
+        ws.current = new WebSocket("ws://localhost:8765");
 
-    ws.onopen = () => console.log("Connected to WebSocket server")
+        ws.current.onopen = () => console.log("✅ Connected to WebSocket server");
 
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data)
-      console.log("Received data:", data)
-      setFaceData(data) // Update state
-    }
+        ws.current.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            console.log("Received WebSocket message:", data);
+            if (data.type === "ad_generated") {
+              console.log("Ad generation complete, fetching new ad...");
+              fetchGeneratedAd();
+            } else if (data.type === "face_data") {
+              setFaceData(data);
+            }
+          } catch (error) {
+            console.error("Error parsing WebSocket message:", error);
+          }
+        };
 
-    ws.onclose = () => console.log("Disconnected from WebSocket server")
-    ws.onerror = (err) => console.error("WebSocket error:", err)
+        ws.current.onerror = (err) => {
+          console.error("❌ WebSocket error:", err);
+        };
 
-    return () => ws.close() // Cleanup on component unmount
-  }, [setFaceData])
+        ws.current.onclose = () => {
+          console.warn("⚠️ WebSocket disconnected, attempting to reconnect...");
+          setTimeout(connectWebSocket, 3000);
+        };
+      }
+    };
 
-  return null // This component doesn't render anything
-}
+    connectWebSocket();
 
-export default WebSocketClient
+    return () => {
+      if (ws.current) {
+        ws.current.close();
+      }
+    };
+  }, [setFaceData, fetchGeneratedAd]);
+
+  return null;
+};
+
+export default WebSocketClient;
