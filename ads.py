@@ -18,22 +18,22 @@ class AdGen:
         
         self.img_path = "images/screenshot.png"  # Screenshot path
         self.openai_client = OpenAI(
-            api_key="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",
+            api_key="",
             )
         self.moondream_client = OpenAI(
             base_url="https://api.moondream.ai/v1",
-            api_key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlfaWQiOiJlNmM4ZWE1ZC01YTU2LTQ5NWMtYTBiZS0wOWVhYjNlMjlkMmMiLCJpYXQiOjE3MzkwNDgxNjB9.TjiW_dkvm3tzZmm8zjgKbFO6kdxecA8QM8FM1ZFE_OI"
+            api_key=""
             )
-        self.replicate_client = Client(api_token="r8_DNNOVpxoA4d6EUGOTeo7ktKwY0GwtCe1MRIU0")
+        self.replicate_client = Client(api_token="")
         self.perplexity_client = OpenAI(
         base_url="https://api.perplexity.ai",
-        api_key = "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"
+        api_key = ""
         )
         self.perplexity_on = True  # Initialize perplexity_on attribute
 
     def analyze_face(self):
         """Analyze the face in the screenshot using Moondream."""
-        model = md.vl(api_key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlfaWQiOiIyMWM5YzYxZC1lZThiLTQ3NDMtODU0YS1kNmEyMmM0NWIzZDUiLCJpYXQiOjE3Mzc3MjgzNjF9.irF2ksLrRfOpmWuJuOa8eYUSw5JrKVRKvnXVLx5ZMTA")
+        model = md.vl(api_key="")
         image = Image.open(self.img_path)
         self.facial_expression = model.caption(image)["caption"]
         print(f"Facial Expression: {self.facial_expression}")
