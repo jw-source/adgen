@@ -18,7 +18,8 @@ const App = () => {
       })
       .then((blob) => {
         const imageUrl = URL.createObjectURL(blob);
-        setOriginalAd(imageUrl);
+        const cachedUrl = `${imageUrl}?t=${new Date().getTime()}`;
+        setOriginalAd(cachedUrl);
       })
       .catch((error) => {
         console.error("Error fetching original ad:", error);
@@ -125,12 +126,12 @@ const containerStyle = {
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
-  padding: "20px",
+  padding: "5px",
 };
 
 const titleStyle = {
   fontSize: "36px",
-  marginBottom: "20px",
+  marginBottom: "5px",
   color: "#333",
 };
 
@@ -158,7 +159,8 @@ const subtitleStyle = {
 };
 
 const imageStyle = {
-  maxWidth: "400px",
+  maxWidth: "600px",
+  maxHeight: "600px",
   borderRadius: "8px",
   boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
 };
@@ -179,8 +181,8 @@ const buttonStyle = {
 };
 
 const placeholderStyle = {
-  width: "400px",
-  height: "300px",
+  width: "600px",
+  height: "450px",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
